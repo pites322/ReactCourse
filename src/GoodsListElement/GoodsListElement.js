@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import './GoodsListElement.css'
+import PropTypes from 'prop-types';
 
 export default class GoodsListElement extends Component {
 
@@ -114,4 +115,14 @@ export default class GoodsListElement extends Component {
             </div>
         )
     }
+}
+
+GoodsListElement.propTypes = {
+    good: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.string,
+        title: PropTypes.string,
+        weight: PropTypes.number,
+        description: PropTypes.string,
+        isSelected: PropTypes.bool,
+    }))
 }
