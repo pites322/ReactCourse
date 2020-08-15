@@ -23,7 +23,9 @@ export const selectedElementByID = (id, goods) => {
     const elementsIndex = goods.findIndex(element => element.id === id )
     let newArray = [...goods]
     newArray[elementsIndex] = {...newArray[elementsIndex], isSelected: !newArray[elementsIndex].isSelected}
+    console.log(newArray)
     return newArray
+    
 }
 
 export const updateElementByID = (arrayData, goods) => {

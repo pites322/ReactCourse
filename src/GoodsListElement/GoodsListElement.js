@@ -1,128 +1,125 @@
-import React, { Component } from 'react'
+import React, { useState, useCallback } from 'react'
 import './GoodsListElement.css'
 import PropTypes from 'prop-types';
 
-export default class GoodsListElement extends Component {
+export default function GoodsListElement(props) {
 
-    state = {
+    let { id, title, weight, description, isSelected} = props.good
+    let { onCanсel, onSave, onChange, onRawClick, onDelete, onUpdateID }  = props
+
+    let [state, setState] = useState({
         id: '',
         title: '',
         weight: '',
         description: '',
         isSelected: false,
-    }
+    })
 
+    const onDeleteElem = useCallback(
+        (e) => {
+            e.stopPropagation()
+            onDelete(id);
+        },
+        [onDelete, id],
+    )
 
-    onDelete = (e) => {
+    const onRawClickElem = useCallback(
+        (e) => {
+            e.stopPropagation()
+            onRawClick(id)
+    },[id, onRawClick])
+
+    const onChangeElem = useCallback((e) => {
         e.stopPropagation()
-        this.props.onDelete(this.props.good.id)
-    }
-
-    onRawClick = (e) => {
-        
-        this.props.onRawClick(this.props.good.id)
-    }
-
-    onChange = (e) => {
-        e.stopPropagation()
-        const {id, title, weight, description} =  this.props.good
-        this.setState({
+        setState({...state,
             id: id,
             title: title,
             weight: weight,
             description: description,
         })
-        this.props.onChange(this.props.good.id)
+        onChange(id)
+    },[state, id, title, weight, description, isSelected])
+
+    const onCanсelElem = useCallback((e) => {
+        e.stopPropagation()
+        onCanсel()
+    })
+
+    const stopProp = (e) => {
+        e.stopPropagation()
     }
 
-    onCanсel = (e) => {
+    const onSaveElem = useCallback(
+        (e) => {
         e.stopPropagation()
-        this.props.onCanсel()
-    }
-
-    stopProp = (e) => {
-        e.stopPropagation()
-    }
-
-    onSave = (e) => {
-        e.stopPropagation()
-        this.state.isSelected = this.props.good.isSelected
-        this.props.onSave(this.state)
-        this.setState({
+        state.isSelected = isSelected
+        onSave(state)
+        setState({
             id: '',
             title: '',
             weight: '',
             description: '',
             isSelected: false,
         })
-    }
+    },[state])
 
-    onInputChange = ({ target }) => {
+    const onInputChange = ({ target }) => {
         if (target.name == 'weight'){
             const float_re = /^\d+\.?(\d+)?$/
             if (!float_re.test(target.value)){
-                target.value = this.state.weight
+                target.value = state.weight
             }
         }
-        this.setState({
-            [target.name]: target.value
-        })
+        let newState = {...state, [target.name]: target.value}
+        setState(newState)
     }
     
 
-    render() {
-        const { id, title, weight, description, isSelected } = this.props.good
-        const title_inp = this.state.title
-        const weight_inp = this.state.weight
-        const description_inp = this.state.description
-        const { onUpdateID } = this.props
-
-        let goodsListClasses = "GoodsListElement"
-        if (isSelected){
-            goodsListClasses += " selected"
-        }
-
-        let onUpdate = onUpdateID === id ? true : false
-        let buttonSet
-        if (onUpdate){
-            buttonSet= 
-            <div className="GoodsListElement_Column GoodsListElement_Button_set">
-                <button onClick={this.onSave}>Save</button>
-                <button onClick={this.onCanсel}>Canсel</button>
-            </div>
-        }else{
-            buttonSet=
-            <div className="GoodsListElement_Column GoodsListElement_Button_set">
-                <button onClick={this.onChange}>Change</button>
-            </div>
-        }
-        return (
-            <div className={goodsListClasses} onClick={this.onRawClick}>
-                <div className="GoodsListElement_Column">
-                    {onUpdate ? 
-                    <input name='title' onClick={this.stopProp} onChange={this.onInputChange} value={title_inp}></input> 
-                    : title}</div>
-                <div className="GoodsListElement_Column">
-                    {onUpdate ? <input name='weight' onChange={this.onInputChange}  
-                    onClick={this.stopProp} value={weight_inp}></input> : weight}</div>
-                <div className="GoodsListElement_Column GoodsListElement_ColumnDescription">
-                    {onUpdate ? <input name='description' onChange={this.onInputChange} 
-                    onClick={this.stopProp} value={description_inp}></input> : description}</div>
-                {buttonSet}
-                <div className="GoodsListElement_Column GoodsListElement_Button">
-                    <button onClick={this.onDelete}>Delete</button>
-                </div>
-            </div>
-        )
+    let goodsListClasses = "GoodsListElement"
+    if (isSelected){
+        goodsListClasses += " selected"
     }
+    let onUpdate = onUpdateID === id ? true : false
+    let buttonSet
+    if (onUpdate){
+        buttonSet= 
+        <div className="GoodsListElement_Column GoodsListElement_Button_set">
+            <button onClick={onSaveElem}>Save</button>
+            <button onClick={onCanсelElem}>Canсel</button>
+        </div>
+    }else{
+        buttonSet=
+        <div className="GoodsListElement_Column GoodsListElement_Button_set">
+            <button onClick={onChangeElem}>Change</button>
+        </div>
+    }
+    return (
+        <div className={goodsListClasses} onClick={onRawClickElem}>
+            <div className="GoodsListElement_Column">
+                {onUpdate ? 
+                <input name='title' onClick={stopProp} onChange={onInputChange} value={state.title}></input> 
+                : title}</div>
+            <div className="GoodsListElement_Column">
+                {onUpdate ? <input name='weight' onChange={onInputChange}  
+                onClick={stopProp} value={state.weight}></input> : weight}</div>
+            <div className="GoodsListElement_Column GoodsListElement_ColumnDescription">
+                {onUpdate ? <input name='description' onChange={onInputChange} 
+                onClick={stopProp} value={state.description}></input> : description}</div>
+            {buttonSet}
+            <div className="GoodsListElement_Column GoodsListElement_Button">
+                <button onClick={onDeleteElem}>Delete</button>
+            </div>
+        </div>
+    )
 }
 
-GoodsListElement.propTypes = {
-    good: PropTypes.arrayOf(PropTypes.shape({
-        id: PropTypes.string,
-        title: PropTypes.string,
-        weight: PropTypes.number,
-        description: PropTypes.string,
-        isSelected: PropTypes.bool,
-    }))
-}
+
+// GoodsListElement.propTypes = {
+//     good: PropTypes.objectOf(PropTypes.shape({
+//         id: PropTypes.string,
+//         title: PropTypes.string,
+//         weight: PropTypes.number,
+//         description: PropTypes.string,
+//         isSelected: PropTypes.bool,
+//     }))
+// }
